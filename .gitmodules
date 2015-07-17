@@ -1,0 +1,3 @@
+[submodule "examples/creepr"]
+	path = examples/creepr
+	url = https://github.com/rickhousley/creepr
