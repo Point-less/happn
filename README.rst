@@ -14,7 +14,7 @@ Download the source and run:
 	\docs	- Documentation of functions
 	\bin	- Prebuilt scripts using python Happn API
         setHappnPosition.py - Script for setting user position
-	\examples - exmaple implementations	
+	\examples - exmaple implementations
 ```
 
 ##Getting Started
@@ -35,6 +35,16 @@ pprint.pprint(targetUserDict)
 
 # Set user position
 myUser = myUser.set_position(20.0477203,-156.5052441) #Hawaii lat/lon
+
+# Get recommendations
+recs = myUser.get_recommendations()
+
+# Like users
+for rec in recs:
+	relation = int(rec.get('notifier').get('my_relation'))
+	if (relation == happn.Relations.none):
+		user_id = int(rec.get('notifier').get('id'))
+		myUser.like_user(user_id)
 ```
 
 ####Using the Scripts
@@ -46,7 +56,6 @@ myUser = myUser.set_position(20.0477203,-156.5052441) #Hawaii lat/lon
 + Easier Setting Configuration
 + Decouple my settings, add to gitignore (decouple package)
 + Unimplemented API Calls
-    + Liking a User
     + Charming a User
     + Send a message
     + Get conversations
@@ -55,4 +64,3 @@ myUser = myUser.set_position(20.0477203,-156.5052441) #Hawaii lat/lon
     * Scripts not yet working
 + Test Sybil Locator
     + find [original](https://github.com/rickhousley/creepr/blob/master/happn/sybilSupriseDate.py) pre-api version here
-
