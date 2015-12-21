@@ -39,6 +39,11 @@ httpErrors = {
     #@TODO Add full list
 }
 
+class Relations(object):
+    none  = 0
+    liked  = 1
+    matched = 4
+
 class User:
     """ User class for making Happn API calls from """
 
@@ -322,7 +327,7 @@ class User:
         payload = {
             'id' :  user_id
         }
-        url = 'https://api.happn.fr/api/users/me/accepted/'+str(user_id)
+        url = 'https://api.happn.fr/api/users/' + self.id +'/accepted/'+str(user_id)
         try:
             r = requests.post(url, headers=h, data = payload)
         except:
