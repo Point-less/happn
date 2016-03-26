@@ -26,16 +26,66 @@ headers = {
 }
 
 httpErrors = {
-    200 : 'OK',
-    400 : 'Bad Request',
-    401 : 'Unauthorized',
-    403 : 'Forbidden',
-    404 : 'Not Found',
-    408 : 'Request Timeout',
-    410 : 'Gone',
-    429 : 'Too Many Requests',
-    500 : 'Internal Server Error',
-    504 : 'Gateway Timeout'
+	200 : 'OK',
+	201 : 'Created',
+	202 : 'Accepted',
+	203 : 'Non-authoritative Information',
+	204 : 'No Content',
+	205 : 'Reset Content',
+	206 : 'Partial Content',
+	207 : 'Multi-Status',
+	208 : 'Already Reported',
+	226 : 'IM Used',
+	300 : 'Multiple Choices',
+	301 : 'Moved Permanently',
+	302 : 'Found',
+	303 : 'See Other',
+	304 : 'Not Modified',
+	305 : 'Use Proxy',
+	307 : 'Temporary Redirect',
+	308 : 'Permanent Redirect',
+	400 : 'Bad Request',
+	401 : 'Unauthorized',
+	402 : 'Payment Required',
+	403 : 'Forbidden',
+	404 : 'Not Found',
+	405 : 'Method Not Allowed',
+	406 : 'Not Acceptable',
+	407 : 'Proxy Authentication Required',
+	408 : 'Request Timeout',
+	409 : 'Conflict',
+	410 : 'Gone',
+	411 : 'Length Required',
+	412 : 'Precondition Failed',
+	413 : 'Payload Too Large',
+	414 : 'Request-URI Too Long',
+	415 : 'Unsupported Media Type',
+	416 : 'Requested Range Not Satisfiable',
+	417 : 'Expectation Failed',
+	418 : 'I\'m a teapot',
+	421 : 'Misdirected Request',
+	422 : 'Unprocessable Entity',
+	423 : 'Locked',
+	424 : 'Failed Dependency',
+	426 : 'Upgrade Required',
+	428 : 'Precondition Required',
+	429 : 'Too Many Requests',
+	431 : 'Request Header Fields Too Large',
+	444 : 'No Response (Nginx)',
+	451 : 'Unavailable For Legal Reasons',
+	499 : 'Client Closed Request',
+	500 : 'Internal Server Error',
+	501 : 'Not Implemented',
+	502 : 'Bad Gateway',
+	503 : 'Service Unavailable',
+	504 : 'Gateway Timeout',
+	505 : 'HTTP Version Not Supported',
+	506 : 'Variant Also Negotiates',
+	507 : 'Insufficient Storage',
+	508 : 'Loop Detected',
+	510 : 'Not Extended',
+	511 : 'Network Authentication Required',
+	599 : 'Network Connect Timeout Error',
     #@TODO Add full list
 }
 
@@ -339,6 +389,33 @@ class User:
             # Unable to fetch distance
             raise HTTP_MethodError(httpErrors[r.status_code])
 
+    def decline_user(self, user_id):
+        """ Decline user
+            :user_id id of the user to decline
+        """
+
+        # Create and send HTTP PUT to Happn server
+        h = headers
+        h.update({
+            'Authorization' : 'OAuth="'+ self.oauth + '"',
+            'Content-Type'  : 'application/x-www-form-urlencoded; charset=UTF-8',
+            'Content-Length': '20'
+        })
+        payload = {
+            'id' :  user_id
+        }
+        url = 'https://api.happn.fr/api/users/' + self.id +'/rejected/'+str(user_id)
+        try:
+            r = requests.post(url, headers=h, data = payload)
+        except:
+            raise HTTP_MethodError('Error Connecting to Happn Server')
+
+        if r.status_code == 200: #200 = 'OK'
+            logging.debug('Declined User '+str(user_id))
+        else:
+            # Unable to fetch distance
+            raise HTTP_MethodError(httpErrors[r.status_code])           
+            
 
 class HTTP_MethodError(Exception):
     def __init__(self, value):
