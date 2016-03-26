@@ -389,6 +389,33 @@ class User:
             # Unable to fetch distance
             raise HTTP_MethodError(httpErrors[r.status_code])
 
+    def decline_user(self, user_id):
+        """ Decline user
+            :user_id id of the user to decline
+        """
+
+        # Create and send HTTP PUT to Happn server
+        h = headers
+        h.update({
+            'Authorization' : 'OAuth="'+ self.oauth + '"',
+            'Content-Type'  : 'application/x-www-form-urlencoded; charset=UTF-8',
+            'Content-Length': '20'
+        })
+        payload = {
+            'id' :  user_id
+        }
+        url = 'https://api.happn.fr/api/users/' + self.id +'/rejected/'+str(user_id)
+        try:
+            r = requests.post(url, headers=h, data = payload)
+        except:
+            raise HTTP_MethodError('Error Connecting to Happn Server')
+
+        if r.status_code == 200: #200 = 'OK'
+            logging.debug('Declined User '+str(user_id))
+        else:
+            # Unable to fetch distance
+            raise HTTP_MethodError(httpErrors[r.status_code])           
+            
 
 class HTTP_MethodError(Exception):
     def __init__(self, value):
