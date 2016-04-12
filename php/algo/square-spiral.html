@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <title>Square Spiral</title>
+  </head>
+
+  <body>
+    <main>
+
+      <canvas id="canvas-1" width="800" height="600" style="border:1px solid;"></canvas>
+
+      <script>
+
+        var canvas = document.getElementById ("canvas-1");
+        var context = canvas.getContext ("2d");
+
+        var colors = [ "#ff0000", "#00ff00", "#ffff00", "#0000ff", "#ff00ff", "#00ffff" ];
+
+        var x0 = 400;  // center
+        var y0 = 300;
+
+        var r = 250;   // radius
+        var i = 50;    // step
+
+        var m = r / i;
+        var s = 2 * (1 + m) - 1;
+
+        var x = x0;
+        var y = y0;
+
+        for (p = 1; p <= s; p++)
+          {
+          context.beginPath ();
+          context.moveTo (x, y);
+          context.strokeStyle = colors [(p - 1) % 6];
+
+          var d = (p & 1) ? 1 : -1;
+
+          var stop = false;
+
+          for (n = 1; n <= p; n++)
+            {
+            x += d * i;
+
+            context.lineTo (x, y);
+
+            // Finished the radius box ?
+
+            if (p == s && n == p - 1)
+              {
+              stop = true;
+              break;
+              }
+            }
+
+          if (!stop)
+            {
+            for (n = 1; n <= p; n++)
+              {
+              y += d * i;
+
+              context.lineTo (x, y);
+              }
+            }
+
+          context.stroke ();
+          }
+
+        // Back to center
+
+        context.beginPath ();
+        context.moveTo (x, y);
+        context.strokeStyle = "#000000";
+
+        for (n = 1; n <= m; n++)
+          {
+          x -= i;
+          y += i;
+
+          context.lineTo (x, y);
+          }
+
+        context.stroke ();
+
+      </script>
+    </main>
+  </body>
+</html>

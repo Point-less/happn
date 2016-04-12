@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <title>Rectangle Bissect</title>
+  </head>
+
+  <body>
+    <main>
+
+      <canvas id="canvas-1" width="800" height="600" style="border:1px solid;"></canvas>
+
+      <script>
+
+        var canvas = document.getElementById ("canvas-1");
+        var context = canvas.getContext ("2d");
+
+        var colors = [ "#ff0000", "#00ff00", "#ffff00", "#0000ff", "#ff00ff", "#00ffff" ];
+
+        var xmin = 100;
+        var xmax = 700;
+        var ymin = 100;
+        var ymax = 500;
+
+        var bmax = 6;  // max bissect
+
+        context.fillRect (xmin - 3, ymin - 3, 6, 6);
+
+        var xsize = xmax - xmin;
+        var ysize = ymax - ymin;
+
+        for (b = 0; b < bmax; b++)
+          {
+          context.fillStyle = colors [b];
+
+          var d = 1 << b;  // divisor
+
+          var xstep = xsize / d;
+          var ystep = ysize / d;
+
+          var x = xmin;
+
+          for (n = 0; n <= d; n++)
+            {
+            var y = ymin;
+
+            for (p = 0; p <= d; p++)
+              {
+              if ((n & 1) || (p & 1))  // skip already plotted
+                {
+                context.fillRect (x - 3, y - 3, 6, 6);
+                }
+
+              y += ystep;
+              }
+
+            x += xstep;
+            }
+          }
+
+      </script>
+    </main>
+  </body>
+</html>

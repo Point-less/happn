@@ -1,0 +1,3 @@
+#!/bin/bash
+
+php rect-bissect.php 1>>algo.log 2>&1
