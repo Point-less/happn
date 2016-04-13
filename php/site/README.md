@@ -1,7 +1,7 @@
 # Happn Hack website
 
 This folder contains a tiny website to play with the API, with the following features:
-* User information (self & other)
+* User information (self & others)
 * List of notifications
 * List of conversations & messages
 * Accept user (aka like) / cancel accept
@@ -20,4 +20,4 @@ The initial data is the Facebook token, that should be stored in the `fb.json` c
 {"fb_token":"XXXXX"}
 ```
 
-The code only requires PHP engine with CURL activated, and has no dependencies to other PHP library. It shall have write access to the folder to allow the creation of the `auth.json` data file, where the authentication data is saved between two HTTP requests.
+The code only requires PHP engine with CURL activated, and has no dependency to any other PHP library (as it aims to demonstrate the hacking, not to be another Happn fancy application). It shall have write access to the installation folder to allow the creation of the `auth.json` data file, where the authentication data is saved between two HTTP requests.

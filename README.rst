@@ -1,24 +1,30 @@
-#Happn API Python Module
-A module for interacting with Happn's REST API.
+#Happn API Python & PHP Modules
+Modules in Python & PHP for interacting with Happn's REST API.
+
+_Note: go to the `/php` subfolder for the PHP specific information._
 
 ##Installation
 
 Download the source and run:
-```
+```bash
 	python setup.py install
 ```
 
 ##What is included
+
 ```
-	\happn 	- Source
-	\docs	- Documentation of functions
-	\bin	- Prebuilt scripts using python Happn API
-        setHappnPosition.py - Script for setting user position
-	\examples - exmaple implementations
+  \happn                  - Source
+  \docs                   - Documentation of functions
+  \bin                    - Prebuilt scripts using python Happn API
+    setHappnPosition.py   - Script for setting user position
+  \examples               - Example implementations
+  \php                    - PHP modules
 ```
 
 ##Getting Started
-First you need a facebook token to create a Happn User-Object. You can get the one associated with your facebook account by clicking [here](https://www.facebook.com/dialog/oauth?client_id=247294518656661&redirect_uri=fbconnect://success&scope=public_profile&response_type=token) and copying it from the address bar.
+
+First you need a Facebook token to create (or reuse) a Happn user. Please look at the following wiki page to know how to get this token : https://github.com/rickhousley/happn/wiki/Happn-REST-API#facebook-authentication
+
 
 ```python
 import happn
@@ -58,7 +64,7 @@ for rec in recs:
 + Unimplemented API Calls
     + Charming a User
     + Send a message
-    + Get conversations
+    + Get conversations : _done in PHP, not in Python_
     + Get messages
 + Add Scripts
     * Scripts not yet working

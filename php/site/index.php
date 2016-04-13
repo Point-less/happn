@@ -1,6 +1,6 @@
 <?php
 
-require_once ('api.php');
+require_once ('../lib/api.php');
 
 
 // Session helpers

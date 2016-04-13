@@ -1,6 +1,6 @@
 <?php
 
-require_once ('api.php');
+require_once ('../lib/api.php');
 
 
 // API initialization
@@ -15,9 +15,6 @@ if (!$r) die ("Authentication failure !\n");
 function pos_set ($long, $lat)
   {
   global $serv;
-
-  $long = round ($long, 6);  // same precision as Google Map
-  $lat  = round ($lat,  6);
 
   echo "long,lat=$long,$lat\n";
 
