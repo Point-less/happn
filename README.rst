@@ -1,24 +1,25 @@
-#Happn API Python & PHP Modules
-Modules in Python & PHP for interacting with Happn's REST API.
+#Happn APIs
 
-_Note: go to the `/php` subfolder for the PHP specific information._
+Python / PHP modules for interacting with the Happn's REST API.
 
-##Installation
+_Note: the following information is related to the Python modules. Please go to the `/php` subfolder for the PHP modules, and to the Wiki for information about the Happn application & API._
 
-Download the source and run:
-```bash
-	python setup.py install
-```
 
 ##What is included
 
 ```
   \happn                  - Source
-  \docs                   - Documentation of functions
   \bin                    - Prebuilt scripts using python Happn API
     setHappnPosition.py   - Script for setting user position
   \examples               - Example implementations
   \php                    - PHP modules
+```
+
+##Module Installation
+
+Download the source and run:
+```bash
+	python setup.py install
 ```
 
 ##Getting Started
@@ -53,20 +54,15 @@ for rec in recs:
 		myUser.like_user(user_id)
 ```
 
-####Using the Scripts
-
-
-####Using the API
-
-##ToDo
-+ Easier Setting Configuration
-+ Decouple my settings, add to gitignore (decouple package)
-+ Unimplemented API Calls
-    + Charming a User
-    + Send a message
-    + Get conversations : _done in PHP, not in Python_
-    + Get messages
-+ Add Scripts
-    * Scripts not yet working
-+ Test Sybil Locator
-    + find [original](https://github.com/rickhousley/creepr/blob/master/happn/sybilSupriseDate.py) pre-api version here
+##ToDo list
+- [] Easier Setting Configuration
+- [] Decouple my settings, add to gitignore (decouple package)
+- Unimplemented API Calls
+  * [] Charming a User
+  * [] Send a message
+  * [X] Get conversations : _done in PHP, remains to do in Python_
+  * [] Get messages
+- [] Add Scripts
+  * Scripts not yet working
+- [] Test Sybil Locator
+  * find [original](https://github.com/rickhousley/creepr/blob/master/happn/sybilSupriseDate.py) pre-api version here
