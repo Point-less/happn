@@ -120,7 +120,7 @@ class Happn extends Service
       'Content-Type: application/x-www-form-urlencoded; charset=utf-8'
       );
 
-    $q = array (
+    $m = array (
       'client_id'      => $this->client_id,
       'client_secret'  => $this->client_secret,
       'grant_type'     => 'assertion',
@@ -129,7 +129,7 @@ class Happn extends Service
       'scope'          => 'mobile_app'
       );
 
-    $b = http_build_query ($q);
+    $b = http_build_query ($m);
 
     $r = $this->exec ('POST', '/connect/oauth/token', $h, $b);
     $m = json_decode ($r, TRUE);
@@ -154,14 +154,14 @@ class Happn extends Service
       'Content-Type: application/x-www-form-urlencoded; charset=utf-8'
       );
 
-    $q = array (
+    $m = array (
       'grant_type'    => 'refresh_token',
       'refresh_token' => $this->refresh_token,
       'client_id'     => $this->client_id,
       'client_secret' => $this->client_secret
       );
 
-    $b = http_build_query ($q);
+    $b = http_build_query ($m);
 
     $r = $this->exec ('POST', '/connect/oauth/token', $h, $b);
     $m = json_decode ($r, TRUE);
@@ -186,14 +186,13 @@ class Happn extends Service
 
     while (TRUE)
       {
+      $this->fb_load ();
       $this->auth_load ();
 
       // First time authentication
 
       if (is_null ($this->user_id))
         {
-        $this->fb_load ();
-
         if (is_null ($this->fb_token)) break;
 
         $m = $this->token_create ();
@@ -230,7 +229,7 @@ class Happn extends Service
 
   // API invocation
 
-  public function invoke ($method, $url, $headers = NULL, $body = NULL)
+  private function invoke ($method, $url, $headers = NULL, $body = NULL)
     {
     // Common headers
 
@@ -251,6 +250,27 @@ class Happn extends Service
 
     $r = $this->exec ($method, $url, $h, $body);
     return json_decode ($r, TRUE);
+    }
+
+
+  // Confirm Facebook token
+  // Return an 'app_secret_proof' key
+  // What is the purpose of such key ?
+
+  public function proof ()
+    {
+    $h = array (
+      'Content-Type: application/x-www-form-urlencoded; charset=utf-8'
+      );
+
+    $m = array (
+      'facebook_access_token' => $this->fb_token
+      );
+
+    $b = http_build_query ($m);
+
+    $r = $this->invoke ('POST', '/api/auth/proof', $h, $b);
+    return $r;
     }
 
 

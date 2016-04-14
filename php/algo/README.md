@@ -18,4 +18,4 @@ Another goal would be to display the position of the other users.
 
 Achieving this goal is quite difficult with Happn : not only the other users are always moving, but the server rounds the distance and makes the classical trilateration impossible, or at least very hard.
 
-_To be refined and completed_
+_To be refined and completed._

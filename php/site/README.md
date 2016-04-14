@@ -1,23 +1,33 @@
 # Happn Hack website
 
-This folder contains a tiny website to play with the API, with the following features:
+This folder contains a tiny website to play with the API.
+
+Features:
 * User information (self & others)
 * List of notifications
 * List of conversations & messages
 * Accept user (aka like) / cancel accept
 * List of accepted users
-* Reject user (aka block) / cancel reject
+* Reject user / cancel reject
 * List of rejected users
+* Proof (experimental)
 
-This website allows some operations that are not available in the official application ('cancel accept' and 'list of accepted users'), and is more convenient for browsing.
+This website allows some operations that are not available in the official application GUI (_'cancel accept'_ and _'list of accepted users'_). It is also more convenient for browsing on desktop large screens.
 
 ## Installation
 
-Just upload the content of the `php` folder to your webserver, and open the `/site/index.php` main page in your browser.
+Requirements:
+- any web server
+- any recent PHP engine with CURL activated
+- CURL library with SSL/TLS support
 
-The initial data is the Facebook token, that should be stored in the `fb.json` configuration file at the `XXXXX` placeholder:
+Just upload the content of the `/php` folder to your webserver.
+
+The only configuration data is the Facebook token, that should be set in the `/lib/fb.json` file at the `XXXXX` placeholder:
 ```
 {"fb_token":"XXXXX"}
 ```
 
-The code only requires PHP engine with CURL activated, and has no dependency to any other PHP library (as it aims to demonstrate the hacking, not to be another Happn fancy application). It shall have write access to the installation folder to allow the creation of the `auth.json` data file, where the authentication data is saved between two HTTP requests.
+Write access shall be allowed to a `/lib/auth.json` data file, where the authentication data is cached between two HTTP requests.
+
+Now open the `/site/index.php` main page in your browser, and enjoy !
