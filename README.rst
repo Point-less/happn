@@ -1,7 +1,7 @@
-#Happn API Python Module
-A module for interacting with Happn's REST API.
+#Happn APIs
+Modules for interacting with Happn's REST API. Currently both Python and PHP are supported.
 
-##Installation
+##Python Module Installation
 
 Download the source and run:
 ```
