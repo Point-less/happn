@@ -1,5 +1,5 @@
 #Happn APIs
-Modules for interacting with Happn's REST API. Currently both Python and PHP are supported.
+Python / PHP modules for interacting with the Happn's REST API
 
 ##Python Module Installation
 
