@@ -1,24 +1,31 @@
 #Happn APIs
-Python / PHP modules for interacting with the Happn's REST API
 
-##Python Module Installation
+Python / PHP modules for interacting with the Happn's REST API.
+
+_Note: the following information is related to the Python modules. Please go to the `/php` subfolder for the PHP modules, and to the Wiki for information about the Happn application & API._
+
+
+##What is included
+
+```
+  \happn                  - Source
+  \bin                    - Prebuilt scripts using python Happn API
+    setHappnPosition.py   - Script for setting user position
+  \examples               - Example implementations
+  \php                    - PHP modules
+```
+
+##Module Installation
 
 Download the source and run:
-```
+```bash
 	python setup.py install
 ```
 
-##What is included
-```
-	\happn 	- Source
-	\docs	- Documentation of functions
-	\bin	- Prebuilt scripts using python Happn API
-        setHappnPosition.py - Script for setting user position
-	\examples - exmaple implementations
-```
-
 ##Getting Started
-First you need a facebook token to create a Happn User-Object. You can get the one associated with your facebook account by clicking [here](https://www.facebook.com/dialog/oauth?client_id=247294518656661&redirect_uri=fbconnect://success&scope=public_profile&response_type=token) and copying it from the address bar.
+
+First you need a Facebook token to create (or reuse) a Happn user. Please look at the following wiki page to know how to get this token : https://github.com/rickhousley/happn/wiki/Happn-REST-API#facebook-authentication
+
 
 ```python
 import happn
@@ -47,20 +54,15 @@ for rec in recs:
 		myUser.like_user(user_id)
 ```
 
-####Using the Scripts
-
-
-####Using the API
-
-##ToDo
-+ Easier Setting Configuration
-+ Decouple my settings, add to gitignore (decouple package)
-+ Unimplemented API Calls
-    + Charming a User
-    + Send a message
-    + Get conversations
-    + Get messages
-+ Add Scripts
-    * Scripts not yet working
-+ Test Sybil Locator
-    + find [original](https://github.com/rickhousley/creepr/blob/master/happn/sybilSupriseDate.py) pre-api version here
+##ToDo list
+- [] Easier Setting Configuration
+- [] Decouple my settings, add to gitignore (decouple package)
+- Unimplemented API Calls
+  * [] Charming a User
+  * [] Send a message
+  * [X] Get conversations : _done in PHP, remains to do in Python_
+  * [] Get messages
+- [] Add Scripts
+  * Scripts not yet working
+- [] Test Sybil Locator
+  * find [original](https://github.com/rickhousley/creepr/blob/master/happn/sybilSupriseDate.py) pre-api version here

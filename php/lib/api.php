@@ -25,6 +25,7 @@ class Happn extends Service
   private $expires_at    = NULL;
 
   public $user_id        = NULL;
+  public $device_id      = '7afd6a7b-d4db-4b7b-8384-c27e02ef02e2';
 
 
   // Load FB data from JSON file
@@ -35,7 +36,7 @@ class Happn extends Service
 
 		while (TRUE)
 			{
-			$path = 'fb.json';
+			$path = '../lib/fb.json';
 			if (!is_file ($path)) break;
 
 			$text = file_get_contents ($path);
@@ -62,7 +63,7 @@ class Happn extends Service
 
 		while (TRUE)
 			{
-			$path = 'auth.json';
+			$path = '../lib/auth.json';
 			if (!is_file ($path)) break;
 
 			$text = file_get_contents ($path);
@@ -102,7 +103,7 @@ class Happn extends Service
 			$text = json_encode ($map);
 			if (!$text) break;
 
-			$path = 'auth.json';
+			$path = '../lib/auth.json';
 			$result = file_put_contents ($path, $text);
 			break;
 			}
@@ -119,7 +120,7 @@ class Happn extends Service
       'Content-Type: application/x-www-form-urlencoded; charset=utf-8'
       );
 
-    $q = array (
+    $m = array (
       'client_id'      => $this->client_id,
       'client_secret'  => $this->client_secret,
       'grant_type'     => 'assertion',
@@ -128,7 +129,7 @@ class Happn extends Service
       'scope'          => 'mobile_app'
       );
 
-    $b = http_build_query ($q);
+    $b = http_build_query ($m);
 
     $r = $this->exec ('POST', '/connect/oauth/token', $h, $b);
     $m = json_decode ($r, TRUE);
@@ -153,14 +154,14 @@ class Happn extends Service
       'Content-Type: application/x-www-form-urlencoded; charset=utf-8'
       );
 
-    $q = array (
+    $m = array (
       'grant_type'    => 'refresh_token',
       'refresh_token' => $this->refresh_token,
       'client_id'     => $this->client_id,
       'client_secret' => $this->client_secret
       );
 
-    $b = http_build_query ($q);
+    $b = http_build_query ($m);
 
     $r = $this->exec ('POST', '/connect/oauth/token', $h, $b);
     $m = json_decode ($r, TRUE);
@@ -185,14 +186,13 @@ class Happn extends Service
 
     while (TRUE)
       {
+      $this->fb_load ();
       $this->auth_load ();
 
       // First time authentication
 
       if (is_null ($this->user_id))
         {
-        $this->fb_load ();
-
         if (is_null ($this->fb_token)) break;
 
         $m = $this->token_create ();
@@ -229,7 +229,7 @@ class Happn extends Service
 
   // API invocation
 
-  public function invoke ($method, $url, $headers = NULL, $body = NULL)
+  private function invoke ($method, $url, $headers = NULL, $body = NULL)
     {
     // Common headers
 
@@ -237,6 +237,11 @@ class Happn extends Service
       'User-Agent: Happn/19.1.0 AndroidSDK/19',
       'Authorization: OAuth="' . $this->access_token . '"'
       );
+
+    // Issue #11 : new header with device identifier
+
+    if (!is_null ($this->device_id))
+      $h [] = 'X-Happn-DID: ' . $this->device_id;
 
     if (!is_null ($headers))
       {
@@ -248,6 +253,27 @@ class Happn extends Service
     }
 
 
+  // Confirm Facebook token
+  // Return an 'app_secret_proof' key
+  // What is the purpose of such key ?
+
+  public function proof ()
+    {
+    $h = array (
+      'Content-Type: application/x-www-form-urlencoded; charset=utf-8'
+      );
+
+    $m = array (
+      'facebook_access_token' => $this->fb_token
+      );
+
+    $b = http_build_query ($m);
+
+    $r = $this->invoke ('POST', '/api/auth/proof', $h, $b);
+    return $r;
+    }
+
+
   // Set position (old way)
 
   public function pos ($latitude, $longitude)
@@ -255,6 +281,12 @@ class Happn extends Service
     $h = array (
       'Content-Type: application/json'
       );
+
+    // Looks like Happn hates high precision
+    // Use same precision as Google Maps
+
+    $latitude  = round ($latitude,  6);
+    $longitude = round ($longitude, 6);
 
     $m = array (
       'alt'       => 0.0,
@@ -269,11 +301,11 @@ class Happn extends Service
     }
 
   /*
-  // TODO: use invoke method
+  // TODO: tune this function after understanding how device is created
+
   public function dev ()
     {
     $headers = array (
-      'Authorization' => 'OAuth="' . $this->access_token . '"',
       'Content-Type'  => 'application/json'
       );
 
@@ -290,10 +322,10 @@ class Happn extends Service
 
     $body = json_encode ($map);
 
-    $r = $this->exec ('PUT', '/api/users/' . $this->user_id . '/devices/' . '1830658762', $headers, $body);
+    $r = $this->invoke ('PUT', '/api/users/' . $this->user_id . '/devices/' . ??? , $headers, $body);
     return json_decode ($r, TRUE);
     }
-  */
+    */
 
 
   // Get user information

@@ -1,3 +1,0 @@
-#!/bin/bash
-
-php square-spiral.php 1>>algo.log 2>&1

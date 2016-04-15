@@ -1,6 +1,6 @@
 <?php
 
-require_once ('api.php');
+require_once ('../lib/api.php');
 
 
 // Session helpers
@@ -410,6 +410,15 @@ switch ($page)
     
     break;
 
+
+  // Proof (experimental)
+
+  case 'proof':
+    $r = $serv->proof ();
+    echo '<p>' . var_dump ($r) . '</p>';
+    break;
+
+
   // Default page
 
   default:
@@ -424,6 +433,7 @@ switch ($page)
       <li><a href="index.php?page=accepted">Accepted users</a></li>
       <li><a href="index.php?page=rejected">Rejected users</a></li>
       <li><a href="index.php?page=conv&op=first">Conversations</a></li>
+      <li><a href="index.php?page=proof">Proof (experimental)</a></li>
     </ul>
 
     <?php

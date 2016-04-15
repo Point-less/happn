@@ -1,7 +1,9 @@
 <?php
 
-require_once ('api.php');
+require_once ('../lib/api.php');
 
+
+// TODO: group the common code in an 'algo.php' file
 
 // API initialization
 
@@ -16,21 +18,19 @@ function pos_set ($long, $lat)
   {
   global $serv;
 
-  $long = round ($long, 6);  // same precision as Google Map
-  $lat  = round ($lat,  6);
-
   echo "long= $long lat= $lat\n";
 
   $m = $serv->pos ($long, $lat);
   echo var_dump ($m) . "\n";
 
-  // Wait 15 minutes between two position updates
+  // Wait 30 minutes between two position updates
   // otherwise Happn complains with HTTP 429
 
   // Looks like Happn still complains event with that delay
   // Maybe a fake position detection algorithm ?
+  // Or any mistake in this code ?
 
-  sleep (900);
+  sleep (1800);
   }
 
 
