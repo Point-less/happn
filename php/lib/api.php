@@ -1,6 +1,7 @@
 <?php
 
 require_once ('serv.php');
+require_once ('json.php');
 
 
 // Happn REST API
@@ -30,86 +31,60 @@ class Happn extends Service
 
   // Load FB data from JSON file
 
-	private function fb_load ()
-		{
-		$result = FALSE;
+  private function fb_load ()
+    {
+    while (TRUE)
+      {
+      $m = json_load ('../lib/fb.json');
+      if (!$m) break;
 
-		while (TRUE)
-			{
-			$path = '../lib/fb.json';
-			if (!is_file ($path)) break;
+      if (isset ($m ['fb_token'])) $this->fb_token = $m ['fb_token'];
 
-			$text = file_get_contents ($path);
-			if (!$text) break;
-
-			$map = json_decode ($text, TRUE); // return association
-			if (!$map) break;
-
-      if (isset ($map ['fb_token'])) $this->fb_token = $map ['fb_token'];
-
-			$result = TRUE;
-			break;
-			}
-
-		return $result;
-		}
+      break;
+      }
+    }
 
 
   // Load authentication data from JSON file
 
-	private function auth_load ()
-		{
-		$result = FALSE;
+  private function auth_load ()
+    {
+    while (TRUE)
+      {
+      $m = json_load ('../lib/auth.json');
+      if (!$m) break;
 
-		while (TRUE)
-			{
-			$path = '../lib/auth.json';
-			if (!is_file ($path)) break;
+      if (isset ($m ['access_token']))  $this->access_token  = $m ['access_token'];
+      if (isset ($m ['refresh_token'])) $this->refresh_token = $m ['refresh_token'];
+      if (isset ($m ['expires_at']))    $this->expires_at    = $m ['expires_at'];
+      if (isset ($m ['user_id']))       $this->user_id       = $m ['user_id'];
 
-			$text = file_get_contents ($path);
-			if (!$text) break;
-
-			$map = json_decode ($text, TRUE); // return association
-			if (!$map) break;
-
-      if (isset ($map ['access_token']))  $this->access_token  = $map ['access_token'];
-      if (isset ($map ['refresh_token'])) $this->refresh_token = $map ['refresh_token'];
-      if (isset ($map ['expires_at']))    $this->expires_at    = $map ['expires_at'];
-      if (isset ($map ['user_id']))       $this->user_id       = $map ['user_id'];
-
-			$result = TRUE;
-			break;
-			}
-
-		return $result;
-		}
+      break;
+      }
+    }
 
 
   // Save authentication data to JSON file
 
-	private function auth_save ()
-		{
-		$result = FALSE;
+  private function auth_save ()
+    {
+    $r = FALSE;
 
-		while (TRUE)
-			{
-      $map = array ();
+    while (TRUE)
+      {
+      $m = array ();
 
-      if (!is_null ($this->access_token))  $map ['access_token']  = $this->access_token;
-      if (!is_null ($this->refresh_token)) $map ['refresh_token'] = $this->refresh_token;
-      if (!is_null ($this->expires_at))    $map ['expires_at']    = $this->expires_at;
-      if (!is_null ($this->user_id))       $map ['user_id']       = $this->user_id;
+      if (!is_null ($this->access_token))  $m ['access_token']  = $this->access_token;
+      if (!is_null ($this->refresh_token)) $m ['refresh_token'] = $this->refresh_token;
+      if (!is_null ($this->expires_at))    $m ['expires_at']    = $this->expires_at;
+      if (!is_null ($this->user_id))       $m ['user_id']       = $this->user_id;
 
-			$text = json_encode ($map);
-			if (!$text) break;
+      $r = json_save ('../lib/auth.json', $m);
+      break;
+      }
 
-			$path = '../lib/auth.json';
-			$result = file_put_contents ($path, $text);
-			break;
-			}
-
-		return $result;
-		}
+    return $r;
+    }
 
 
   // Create access & refresh token from FB token

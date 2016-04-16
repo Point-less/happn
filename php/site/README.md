@@ -23,11 +23,13 @@ Requirements:
 
 Just upload the content of the `/php` folder to your webserver.
 
-The only configuration data is the Facebook token, that should be set in the `/lib/fb.json` file at the `XXXXX` placeholder:
+The only configuration data is the Facebook token, that should be set in the `/lib/fb.json` file:
 ```
 {"fb_token":"XXXXX"}
+
+replace XXXX by your Facebook token
 ```
 
-Write access shall be allowed to a `/lib/auth.json` data file, where the authentication data is cached between two HTTP requests.
+Write access shall be allowed to the `/lib/auth.json` file, where the authentication data is cached between two HTTP requests.
 
 Now open the `/site/index.php` main page in your browser, and enjoy !
