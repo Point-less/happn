@@ -26,7 +26,7 @@ class Happn extends Service
   private $expires_at    = NULL;
 
   public $user_id        = NULL;
-  public $device_id      = '7afd6a7b-d4db-4b7b-8384-c27e02ef02e2';
+  public $device_id      = NULL;
 
 
   // Load FB data from JSON file
@@ -109,7 +109,7 @@ class Happn extends Service
     $r = $this->exec ('POST', '/connect/oauth/token', $h, $b);
     $m = json_decode ($r, TRUE);
 
-    if (isset ($m ['error_code']) && $m ['error_code'] == 0)
+    if (isset ($m ['success']) && $m ['success'])
       {
       $this->access_token  = $m ['access_token'];
       $this->refresh_token = $m ['refresh_token'];
@@ -141,7 +141,7 @@ class Happn extends Service
     $r = $this->exec ('POST', '/connect/oauth/token', $h, $b);
     $m = json_decode ($r, TRUE);
 
-    if (isset ($m ['error_code']) && $m ['error_code'] == 0)
+    if (isset ($m ['success']) && $m ['success'])
       {
       $this->access_token  = $m ['access_token'];
       $this->refresh_token = $m ['refresh_token'];
@@ -249,6 +249,36 @@ class Happn extends Service
     }
 
 
+  // Achievements
+
+  public function achievement_types ()
+    {
+    $r = $this->invoke ('GET', '/api/achievement-types/');
+    return $r;
+    }
+
+  public function achievements ()
+    {
+    $r = $this->invoke ('GET', '/api/users/' . $this->user_id . '/achievements/');
+    return $r;
+    }
+
+
+  // Reports
+
+  public function report_types ()
+    {
+    $r = $this->invoke ('GET', '/api/report-types/');
+    return $r;
+    }
+
+  public function reports ()
+    {
+    $r = $this->invoke ('GET', '/api/users/' . $this->user_id . '/reportss/');
+    return $r;
+    }
+
+
   // Set position (old way)
 
   public function pos ($latitude, $longitude)
@@ -274,6 +304,29 @@ class Happn extends Service
     $r = $this->invoke ('POST', '/api/users/' . $this->user_id . '/position/', $h, $b);
     return $r;
     }
+
+
+  // Get list of devices
+
+  public function devices ()
+    {
+    $r = $this->invoke ('GET', '/api/users/' . $this->user_id . '/devices/');
+
+    if (isset ($r ['success']) && $r ['success'])
+      {
+      // Store the first device ID for positionning
+
+      $devs = $r ['data'];
+      if (is_array ($devs) && count ($devs) > 0)
+        {
+        $dev = $devs [0];
+        $this->device_id = $dev ['id'];
+        }
+      }
+
+    return $r;
+    }
+
 
   /*
   // TODO: tune this function after understanding how device is created
