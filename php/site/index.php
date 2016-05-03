@@ -82,8 +82,7 @@ switch ($page)
 
     echo '<h1>' . $u ['first_name'] . '</h1>';
     echo '<p>ID : ' . $u ['id'] .  '</p>';
-    echo '<p>Gender: ' . $u ['gender'] . '</p>';
-    echo '<p>Birth: ' . $u ['birth_date'] . ' (' . $u ['age'] . ')</p>';
+    echo '<p>Gender: ' . $u ['gender'] . ' - Birth: ' . $u ['birth_date'] . ' (' . $u ['age'] . ')</p>';
     echo '<p>Job: ' . $u ['job'] . ' - Workplace: ' . $u ['workplace'] . '</p>';
     echo '<p>About: ' . $u ['about'] . '</p>';
     echo '<p><a href="https://www.facebook.com/' . $u ['fb_id'] . '">Facebook</a></p>';
@@ -102,6 +101,15 @@ switch ($page)
     echo '<p>Gender: female=' . $p ['female'] . ' male=' . $p ['male'] . '</p>';
     echo '<p>Age: min=' . $p ['age_min'] . ' max=' . $p ['age_max'] . '</p>';
     echo '<p>Distance: ' . $p ['distance'] . ' m </p>';
+
+    echo '<h2>Notifications</h2>';
+
+    $s = $u ['notification_settings'];
+    echo '<p>Settings: charms=' . $s ['charms'] . ' messages=' . $s ['messages'];
+    echo ' reminders=' . $s ['reminders'] . ' dates=' . $s ['dates'];
+    echo ' near=' . $s ['near'] . ' visit=' . $s ['visit'] . ' match=' . $s ['match'] . '</p>';
+
+    echo '<p>Unread notifications: ' . $u ['unread_notifications'] . ' - Conversations: ' . $u ['unread_conversations'] . '</p>';
 
     break;
 
