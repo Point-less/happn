@@ -87,6 +87,42 @@ class Happn extends Service
     }
 
 
+  // Load device data from JSON file
+
+  private function dev_load ()
+    {
+    while (TRUE)
+      {
+      $m = json_load ('../lib/dev.json');
+      if (!$m) break;
+
+      if (isset ($m ['device_id'])) $this->device_id = $m ['device_id'];
+
+      break;
+      }
+    }
+
+
+  // Save device data to JSON file
+
+  private function dev_save ()
+    {
+    $r = FALSE;
+
+    while (TRUE)
+      {
+      $m = array ();
+
+      if (!is_null ($this->device_id)) $m ['device_id'] = $this->device_id;
+
+      $r = json_save ('../lib/dev.json', $m);
+      break;
+      }
+
+    return $r;
+    }
+
+
   // Create access & refresh token from FB token
 
   private function token_create ()
@@ -109,7 +145,7 @@ class Happn extends Service
     $r = $this->exec ('POST', '/connect/oauth/token', $h, $b);
     $m = json_decode ($r, TRUE);
 
-    if (isset ($m ['success']) && $m ['success'])
+    if (isset ($m ['error_code']) && $m ['error_code'] == 0)
       {
       $this->access_token  = $m ['access_token'];
       $this->refresh_token = $m ['refresh_token'];
@@ -141,7 +177,7 @@ class Happn extends Service
     $r = $this->exec ('POST', '/connect/oauth/token', $h, $b);
     $m = json_decode ($r, TRUE);
 
-    if (isset ($m ['success']) && $m ['success'])
+    if (isset ($m ['error_code']) && $m ['error_code'] == 0)
       {
       $this->access_token  = $m ['access_token'];
       $this->refresh_token = $m ['refresh_token'];
@@ -171,11 +207,12 @@ class Happn extends Service
         if (is_null ($this->fb_token)) break;
 
         $m = $this->token_create ();
-        if (is_null ($this->user_id)) break;
+        if (isset ($m ['error_code']) && $m ['error_code'] == 0)
+          {
+          $this->auth_save ();
+          $res = TRUE;
+          }
 
-        $this->auth_save ();
-
-        $res = TRUE;
         break;
         }
 
@@ -184,11 +221,15 @@ class Happn extends Service
 
       if ($this->expires_at <= time () + $delay)
         {
+        $this->access_token = NULL;
+
         $m = $this->token_refresh ();
+        if (isset ($m ['error_code']) && $m ['error_code'] == 0)
+          {
+          $this->auth_save ();
+          $res = TRUE;
+          }
 
-        $this->auth_save ();
-
-        $res = TRUE;
         break;
         }
 
@@ -486,6 +527,39 @@ class Happn extends Service
     $q = http_build_query ($m);
 
     $r = $this->invoke ('GET', '/api/users/' . $this->user_id . '/conversations/?' . $q);
+    return $r;
+    }
+
+
+  // Initialize
+
+  public function init ($delay)
+    {
+    $r = FALSE;
+
+    while (TRUE)
+      {
+      // Authentication
+
+      $r = $this->auth ($delay);
+      if (!$r) break;
+
+      // Get device data
+
+      $this->dev_load ();
+      if (is_null ($this->device_id))
+        {
+        $m = $this->devices ();
+        if (isset ($m ['success']) && $m ['success'])
+          {
+          $this->dev_save ();
+          }
+        }
+
+      $r = TRUE;
+      break;
+      }
+
     return $r;
     }
 

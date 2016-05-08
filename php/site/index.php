@@ -60,8 +60,8 @@ header ('Content-Type: text/html; charset=utf-8');
 // API initialization
 
 $serv = new Happn ();
-$r = $serv->auth (60);  // 1 minute
-if (!$r) die ("Authentication failure !\n");
+$r = $serv->init (60);  // 1 minute
+if (!$r) die ("Initialization failure !\n");
 
 
 // Page select
