@@ -18,7 +18,6 @@ CLIENT_SECRET = config('CLIENT_SECRET')
 
 # Default headers for making Happn API calls
 headers = {
-    'http.useragent':'Happn/1.0 AndroidSDK/0',
     'User-Agent':'Happn/19.1.0 AndroidSDK/19',
     'platform': 'android',
     'Host':'api.happn.fr',
@@ -337,6 +336,35 @@ class User:
             return json.loads(json.dumps(r.json()['data'], sort_keys=True, indent=4, separators=(',', ': ')))
         else:
             raise HTTP_MethodError(httpErrors[r.status_code])
+            
+    def get_declined(self, limit=128, offset=0):
+        """ Get declined people from Happn server
+            :param limit Number of people to recieve
+            :param offset Offset index for reccomendation list
+        """
+        
+        # Create and send HTTP Get to Happn server
+        h={ #For some reason header update doesnt work
+            'http.useragent' : 'Happn/1.0 AndroidSDK/0',
+            'Authorization'  : 'OAuth="' + self.oauth+'"',
+            'Content-Type'   : 'application/json',
+            'User-Agent'     : 'Happn/19.1.0 AndroidSDK/19',
+            'Host'           : 'api.happn.fr',
+            'Connection'     : 'Keep-Alive',
+            'Accept-Encoding': 'gzip'
+        }
+        query = '{"types":"468","limit":'+str(limit)+',"offset":'+str(offset)+',"fields":"is_charmed,modification_date,age,id,my_relation,distance,first_name"}'
+        url = 'https://api.happn.fr/api/users/me/rejected?' + urllib2.quote(query)
+
+        try:
+            r = requests.get(url, headers=h)
+        except Exception as e:
+            raise HTTP_MethodError('Error Connecting to Happn Server: {}'.format(e))
+            
+        if r.status_code == 200: #200 = 'OK'
+            return json.loads(json.dumps(r.json()['data'], sort_keys=True, indent=4, separators=(',', ': ')))
+        else:
+            raise HTTP_MethodError(httpErrors[r.status_code])
     
     def update_activity(self):
         """ Updates User activity """
@@ -386,6 +414,34 @@ class User:
 
         if r.status_code == 200: #200 = 'OK'
             logging.debug('Liked User '+str(user_id))
+        else:
+            # Unable to fetch distance
+            raise HTTP_MethodError(httpErrors[r.status_code])
+    
+    def unreject_user(self, user_id):
+        """ Un-decline user
+            :user_id id of the user to unreject
+        """
+
+        # Create and send HTTP DELETE to Happn server
+        h = headers
+        h.update({
+            'Authorization' : 'OAuth="'+ self.oauth + '"',
+            'Content-Type'  : 'application/x-www-form-urlencoded; charset=UTF-8',
+            'Content-Length': '20'
+        })
+        payload = {
+            'id' :  user_id
+        }
+        url = 'https://api.happn.fr/api/users/me/rejected/'+str(user_id)
+        try:
+            r = requests.delete(url, headers=h, data = payload,verify=False)
+        except Exception as e:
+            raise HTTP_MethodError('Error Connecting to Happn Server: {}'.format(e))
+
+        if r.status_code == 200: #200 = 'OK'
+            logging.info('Un-declined User '+str(user_id))
+			
         else:
             # Unable to fetch distance
             raise HTTP_MethodError(httpErrors[r.status_code])
