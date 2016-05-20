@@ -366,6 +366,61 @@ class User:
         else:
             raise HTTP_MethodError(httpErrors[r.status_code])
     
+    def set_matching_age_min(self, age):
+        """ Set matching min. age
+            :mininum age to like
+        """
+
+        # Create and send HTTP PUT to Happn server
+        h = headers
+        h.update({
+            'Authorization' : 'OAuth="'+ self.oauth + '"',
+            'Content-Type'  : 'application/x-www-form-urlencoded; charset=UTF-8',
+            'Content-Length': '20'
+        })
+        payload = {
+            'matching_age_min' : age
+        }
+        url = 'https://api.happn.fr/api/users/' + self.id
+        try:
+            r = requests.put(url, headers=h, data = payload,verify=False)
+        except Exception as e:
+            raise HTTP_MethodError('Error Connecting to Happn Server: {}'.format(e))
+
+        if r.status_code == 200: #200 = 'OK'
+            logging.debug('Set minimum accept age to '+str(age))
+        else:
+            # Unable to fetch distance
+            raise HTTP_MethodError(httpErrors[r.status_code])
+            
+            
+    def set_matching_age_max(self, age):
+        """ Set matching max. age
+            :maximum age to like
+        """
+
+        # Create and send HTTP PUT to Happn server
+        h = headers
+        h.update({
+            'Authorization' : 'OAuth="'+ self.oauth + '"',
+            'Content-Type'  : 'application/x-www-form-urlencoded; charset=UTF-8',
+            'Content-Length': '20'
+        })
+        payload = {
+            'matching_age_max' : age
+        }
+        url = 'https://api.happn.fr/api/users/' + self.id
+        try:
+            r = requests.put(url, headers=h, data = payload,verify=False)
+        except Exception as e:
+            raise HTTP_MethodError('Error Connecting to Happn Server: {}'.format(e))
+
+        if r.status_code == 200: #200 = 'OK'
+            logging.debug('Set maximum accept age to '+str(age))
+        else:
+            # Unable to fetch distance
+            raise HTTP_MethodError(httpErrors[r.status_code])
+    
     def update_activity(self):
         """ Updates User activity """
 
