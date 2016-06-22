@@ -60,8 +60,8 @@ header ('Content-Type: text/html; charset=utf-8');
 // API initialization
 
 $serv = new Happn ();
-$r = $serv->auth (60);  // 1 minute
-if (!$r) die ("Authentication failure !\n");
+$r = $serv->init (60);  // 1 minute
+if (!$r) die ("Initialization failure !\n");
 
 
 // Page select
@@ -74,16 +74,16 @@ switch ($page)
 
   case 'self':
 
-    $f = 'id,gender,age,birth_date,first_name,job,workplace,about,profiles.fields(url),matching_preferences.fields(female,male,distance,age_min,age_max),notification_settings.fields(charms,messages,reminders,dates,near,visit,match),unread_notifications.types(468,471,524,525,526,529,530,531,565,791,792),unread_conversations';
+    $f = 'id,fb_id,login,register_date.format(Y-m-d),gender,age,birth_date,first_name,last_name,job,workplace,about,referal,credits,profiles.mode(0).width(150).height(150).fields(id,url,width,height,mode),matching_preferences.fields(female,male,distance,age_min,age_max),notification_settings.fields(charms,messages,reminders,dates,near,visit,match),unread_notifications.types(468,471,524,525,526,529,530,531,565,791,792),unread_conversations,social_synchronization.fields(instagram)';
     $r = $serv->user_get ($f);
     //echo '<p>' . var_dump ($r) . '</p>';
 
     $u = $r ['data'];
 
-    echo '<h1>' . $u ['first_name'] . '</h1>';
-    echo '<p>ID : ' . $u ['id'] .  '</p>';
-    echo '<p>Gender: ' . $u ['gender'] . '</p>';
-    echo '<p>Birth: ' . $u ['birth_date'] . ' (' . $u ['age'] . ')</p>';
+    echo '<h1>' . $u ['login'] . '</h1>';
+    echo '<p>' . $u ['first_name'] . ' ' . $u ['last_name'] . '</p>';
+    echo '<p>ID : ' . $u ['id'] . ' - Since: ' . $u ['register_date'] . '</p>';
+    echo '<p>Gender: ' . $u ['gender'] . ' - Birth: ' . $u ['birth_date'] . ' (' . $u ['age'] . ')</p>';
     echo '<p>Job: ' . $u ['job'] . ' - Workplace: ' . $u ['workplace'] . '</p>';
     echo '<p>About: ' . $u ['about'] . '</p>';
     echo '<p><a href="https://www.facebook.com/' . $u ['fb_id'] . '">Facebook</a></p>';
@@ -102,6 +102,16 @@ switch ($page)
     echo '<p>Gender: female=' . $p ['female'] . ' male=' . $p ['male'] . '</p>';
     echo '<p>Age: min=' . $p ['age_min'] . ' max=' . $p ['age_max'] . '</p>';
     echo '<p>Distance: ' . $p ['distance'] . ' m </p>';
+
+    echo '<h2>Notifications</h2>';
+
+    $s = $u ['notification_settings'];
+    echo '<p>Settings: charms=' . $s ['charms'] . ' messages=' . $s ['messages'];
+    echo ' reminders=' . $s ['reminders'] . ' dates=' . $s ['dates'];
+    echo ' near=' . $s ['near'] . ' visit=' . $s ['visit'] . ' match=' . $s ['match'] . '</p>';
+
+    echo '<p>Unread notifications: ' . $u ['unread_notifications'] . ' - Conversations: ' . $u ['unread_conversations'] . '</p>';
+    echo '<p>Credits: ' . $u ['credits'] . '</p>';
 
     break;
 
@@ -419,6 +429,40 @@ switch ($page)
     break;
 
 
+  // Achievements (experimental)
+
+  case 'achievement-types':
+    $r = $serv->achievement_types ();
+    echo '<p>' . var_dump ($r) . '</p>';
+    break;
+
+  case 'achievements':
+    $r = $serv->achievements ();
+    echo '<p>' . var_dump ($r) . '</p>';
+    break;
+
+
+  // Reports (experimental)
+
+  case 'report-types':
+    $r = $serv->report_types ();
+    echo '<p>' . var_dump ($r) . '</p>';
+    break;
+
+  case 'reports':
+    $r = $serv->reports ();
+    echo '<p>' . var_dump ($r) . '</p>';
+    break;
+
+
+  // Devices (experimental)
+
+  case 'devices':
+    $r = $serv->devices ();
+    echo '<p>' . var_dump ($r) . '</p>';
+    break;
+
+
   // Default page
 
   default:
@@ -434,6 +478,11 @@ switch ($page)
       <li><a href="index.php?page=rejected">Rejected users</a></li>
       <li><a href="index.php?page=conv&op=first">Conversations</a></li>
       <li><a href="index.php?page=proof">Proof (experimental)</a></li>
+      <li><a href="index.php?page=achievement-types">Achievements types (experimental)</a></li>
+      <li><a href="index.php?page=achievements">Achievements (experimental)</a></li>
+      <li><a href="index.php?page=report-types">Report types (experimental)</a></li>
+      <li><a href="index.php?page=reports">Reports (experimental)</a></li>
+      <li><a href="index.php?page=devices">Devices (experimental)</a></li>
     </ul>
 
     <?php

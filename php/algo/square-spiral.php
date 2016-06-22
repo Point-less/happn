@@ -3,11 +3,11 @@
 require_once ('../lib/api.php');
 
 
+// TODO: group the common code in an 'algo.php' file
+
 // API initialization
 
 $serv = new Happn ();
-$r = $serv->auth (84600);  // 1 day
-if (!$r) die ("Authentication failure !\n");
 
 
 // Set position
@@ -15,6 +15,9 @@ if (!$r) die ("Authentication failure !\n");
 function pos_set ($long, $lat)
   {
   global $serv;
+
+  $r = $serv->auth (60);  // 1 minute
+  if (!$r) die ("Authentication failure !\n");
 
   echo "long,lat=$long,$lat\n";
 
@@ -24,37 +27,14 @@ function pos_set ($long, $lat)
   // Wait 30 minutes between two position updates
   // otherwise Happn complains with HTTP 429
 
-  // Looks like Happn still complains even with that delay
-  // Maybe a fake position detection algorithm ?
-  // Or another mistake somewhere ?
-
   sleep (1800);
   }
 
 
-// Load area from JSON configuration file
+// Load area data from JSON configuration file
 
-function load ()
-  {
-  $m = NULL;
-
-  while (TRUE)
-    {
-		$p = 'area.json';
-		if (!is_file ($p)) break;
-
-		$t = file_get_contents ($p);
-		if (!$t) break;
-
-		$m = json_decode ($t, TRUE); // return association
-		break;
-		}
-
-	return $m;
-	}
-
-
-$m = load ();
+$m = json_load ('square.json');
+if (!$m) die ("Failed to load area data !\n");
 
 $x0 = $m ['lat'];
 $y0 = $m ['long'];
@@ -80,6 +60,7 @@ echo "ix=$ix iy=$iy\n";
 $m = $r0 / $i0;
 $s = 2 * (1 + $m) - 1;
 echo "m=$m s=$s\n";
+echo "\n";
 
 $x = $x0;
 $y = $y0;

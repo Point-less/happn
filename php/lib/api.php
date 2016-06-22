@@ -1,6 +1,7 @@
 <?php
 
 require_once ('serv.php');
+require_once ('json.php');
 
 
 // Happn REST API
@@ -25,91 +26,101 @@ class Happn extends Service
   private $expires_at    = NULL;
 
   public $user_id        = NULL;
-  public $device_id      = '7afd6a7b-d4db-4b7b-8384-c27e02ef02e2';
+  public $device_id      = NULL;
 
 
   // Load FB data from JSON file
 
-	private function fb_load ()
-		{
-		$result = FALSE;
+  private function fb_load ()
+    {
+    while (TRUE)
+      {
+      $m = json_load ('../lib/fb.json');
+      if (!$m) break;
 
-		while (TRUE)
-			{
-			$path = '../lib/fb.json';
-			if (!is_file ($path)) break;
+      if (isset ($m ['fb_token'])) $this->fb_token = $m ['fb_token'];
 
-			$text = file_get_contents ($path);
-			if (!$text) break;
-
-			$map = json_decode ($text, TRUE); // return association
-			if (!$map) break;
-
-      if (isset ($map ['fb_token'])) $this->fb_token = $map ['fb_token'];
-
-			$result = TRUE;
-			break;
-			}
-
-		return $result;
-		}
+      break;
+      }
+    }
 
 
   // Load authentication data from JSON file
 
-	private function auth_load ()
-		{
-		$result = FALSE;
+  private function auth_load ()
+    {
+    while (TRUE)
+      {
+      $m = json_load ('../lib/auth.json');
+      if (!$m) break;
 
-		while (TRUE)
-			{
-			$path = '../lib/auth.json';
-			if (!is_file ($path)) break;
+      if (isset ($m ['access_token']))  $this->access_token  = $m ['access_token'];
+      if (isset ($m ['refresh_token'])) $this->refresh_token = $m ['refresh_token'];
+      if (isset ($m ['expires_at']))    $this->expires_at    = $m ['expires_at'];
+      if (isset ($m ['user_id']))       $this->user_id       = $m ['user_id'];
 
-			$text = file_get_contents ($path);
-			if (!$text) break;
-
-			$map = json_decode ($text, TRUE); // return association
-			if (!$map) break;
-
-      if (isset ($map ['access_token']))  $this->access_token  = $map ['access_token'];
-      if (isset ($map ['refresh_token'])) $this->refresh_token = $map ['refresh_token'];
-      if (isset ($map ['expires_at']))    $this->expires_at    = $map ['expires_at'];
-      if (isset ($map ['user_id']))       $this->user_id       = $map ['user_id'];
-
-			$result = TRUE;
-			break;
-			}
-
-		return $result;
-		}
+      break;
+      }
+    }
 
 
   // Save authentication data to JSON file
 
-	private function auth_save ()
-		{
-		$result = FALSE;
+  private function auth_save ()
+    {
+    $r = FALSE;
 
-		while (TRUE)
-			{
-      $map = array ();
+    while (TRUE)
+      {
+      $m = array ();
 
-      if (!is_null ($this->access_token))  $map ['access_token']  = $this->access_token;
-      if (!is_null ($this->refresh_token)) $map ['refresh_token'] = $this->refresh_token;
-      if (!is_null ($this->expires_at))    $map ['expires_at']    = $this->expires_at;
-      if (!is_null ($this->user_id))       $map ['user_id']       = $this->user_id;
+      if (!is_null ($this->access_token))  $m ['access_token']  = $this->access_token;
+      if (!is_null ($this->refresh_token)) $m ['refresh_token'] = $this->refresh_token;
+      if (!is_null ($this->expires_at))    $m ['expires_at']    = $this->expires_at;
+      if (!is_null ($this->user_id))       $m ['user_id']       = $this->user_id;
 
-			$text = json_encode ($map);
-			if (!$text) break;
+      $r = json_save ('../lib/auth.json', $m);
+      break;
+      }
 
-			$path = '../lib/auth.json';
-			$result = file_put_contents ($path, $text);
-			break;
-			}
+    return $r;
+    }
 
-		return $result;
-		}
+
+  // Load device data from JSON file
+
+  private function dev_load ()
+    {
+    while (TRUE)
+      {
+      $m = json_load ('../lib/dev.json');
+      if (!$m) break;
+
+      if (isset ($m ['device_id'])) $this->device_id = $m ['device_id'];
+
+      break;
+      }
+    }
+
+
+  // Save device data to JSON file
+
+  private function dev_save ()
+    {
+    $r = FALSE;
+
+    while (TRUE)
+      {
+      $m = array ();
+
+      if (!is_null ($this->device_id)) $m ['device_id'] = $this->device_id;
+
+      $r = json_save ('../lib/dev.json', $m);
+      break;
+      }
+
+    return $r;
+    }
 
 
   // Create access & refresh token from FB token
@@ -196,11 +207,12 @@ class Happn extends Service
         if (is_null ($this->fb_token)) break;
 
         $m = $this->token_create ();
-        if (is_null ($this->user_id)) break;
+        if (isset ($m ['error_code']) && $m ['error_code'] == 0)
+          {
+          $this->auth_save ();
+          $res = TRUE;
+          }
 
-        $this->auth_save ();
-
-        $res = TRUE;
         break;
         }
 
@@ -209,11 +221,15 @@ class Happn extends Service
 
       if ($this->expires_at <= time () + $delay)
         {
+        $this->access_token = NULL;
+
         $m = $this->token_refresh ();
+        if (isset ($m ['error_code']) && $m ['error_code'] == 0)
+          {
+          $this->auth_save ();
+          $res = TRUE;
+          }
 
-        $this->auth_save ();
-
-        $res = TRUE;
         break;
         }
 
@@ -274,6 +290,36 @@ class Happn extends Service
     }
 
 
+  // Achievements
+
+  public function achievement_types ()
+    {
+    $r = $this->invoke ('GET', '/api/achievement-types/');
+    return $r;
+    }
+
+  public function achievements ()
+    {
+    $r = $this->invoke ('GET', '/api/users/' . $this->user_id . '/achievements/');
+    return $r;
+    }
+
+
+  // Reports
+
+  public function report_types ()
+    {
+    $r = $this->invoke ('GET', '/api/report-types/');
+    return $r;
+    }
+
+  public function reports ()
+    {
+    $r = $this->invoke ('GET', '/api/users/' . $this->user_id . '/reportss/');
+    return $r;
+    }
+
+
   // Set position (old way)
 
   public function pos ($latitude, $longitude)
@@ -299,6 +345,29 @@ class Happn extends Service
     $r = $this->invoke ('POST', '/api/users/' . $this->user_id . '/position/', $h, $b);
     return $r;
     }
+
+
+  // Get list of devices
+
+  public function devices ()
+    {
+    $r = $this->invoke ('GET', '/api/users/' . $this->user_id . '/devices/');
+
+    if (isset ($r ['success']) && $r ['success'])
+      {
+      // Store the first device ID for positionning
+
+      $devs = $r ['data'];
+      if (is_array ($devs) && count ($devs) > 0)
+        {
+        $dev = $devs [0];
+        $this->device_id = $dev ['id'];
+        }
+      }
+
+    return $r;
+    }
+
 
   /*
   // TODO: tune this function after understanding how device is created
@@ -458,6 +527,39 @@ class Happn extends Service
     $q = http_build_query ($m);
 
     $r = $this->invoke ('GET', '/api/users/' . $this->user_id . '/conversations/?' . $q);
+    return $r;
+    }
+
+
+  // Initialize
+
+  public function init ($delay)
+    {
+    $r = FALSE;
+
+    while (TRUE)
+      {
+      // Authentication
+
+      $r = $this->auth ($delay);
+      if (!$r) break;
+
+      // Get device data
+
+      $this->dev_load ();
+      if (is_null ($this->device_id))
+        {
+        $m = $this->devices ();
+        if (isset ($m ['success']) && $m ['success'])
+          {
+          $this->dev_save ();
+          }
+        }
+
+      $r = TRUE;
+      break;
+      }
+
     return $r;
     }
 

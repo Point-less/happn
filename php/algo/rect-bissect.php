@@ -8,8 +8,6 @@ require_once ('../lib/api.php');
 // API initialization
 
 $serv = new Happn ();
-$r = $serv->auth (84600);  // 1 day
-if (!$r) die ("Authentication failure !\n");
 
 
 // Set position
@@ -18,7 +16,10 @@ function pos_set ($long, $lat)
   {
   global $serv;
 
-  echo "long= $long lat= $lat\n";
+  $r = $serv->auth (60);  // 1 minute
+  if (!$r) die ("Authentication failure !\n");
+
+  echo "long,lat=$long,$lat\n";
 
   $m = $serv->pos ($long, $lat);
   echo var_dump ($m) . "\n";
@@ -26,43 +27,21 @@ function pos_set ($long, $lat)
   // Wait 30 minutes between two position updates
   // otherwise Happn complains with HTTP 429
 
-  // Looks like Happn still complains event with that delay
-  // Maybe a fake position detection algorithm ?
-  // Or any mistake in this code ?
-
   sleep (1800);
   }
 
 
-// Load area from JSON configuration file
+// Load area data from JSON configuration file
 
-function load ()
-  {
-  $m = NULL;
-
-  while (TRUE)
-    {
-		$p = 'area.json';
-		if (!is_file ($p)) break;
-
-		$t = file_get_contents ($p);
-		if (!$t) break;
-
-		$m = json_decode ($t, TRUE); // return association
-		break;
-		}
-
-	return $m;
-	}
-
-
-$m = load ();
+$m = json_load ('rect.json');
+if (!$m) die ("Failed to load area data !\n");
 
 $xmin = $m ['lat_min'];
 $xmax = $m ['lat_max'];
 
 $ymin = $m ['long_min'];
 $ymax = $m ['long_max'];
+
 
 // Approximate north-south dimension of the square is (in km):
 // xsize = 6371.0 * PI / 180 * (xmax - xmin)

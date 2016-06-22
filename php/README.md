@@ -7,4 +7,4 @@ This folder contains the PHP modules:
   /algo   : Some algorithms to play with Happn data
 ```
 
-Each folder has its own README for more information.
+Each subfolder has its own README for more information.
