@@ -125,7 +125,7 @@ class User:
         h=headers
         h.update({
             'Authorization' : 'OAuth="'+ self.oauth + '"',
-            'Content-Length':  53, #@TODO Figure out length calculation
+            'Content-Length':  '53', #@TODO Figure out length calculation
             'Content-Type'  : 'application/json'
             })
 
