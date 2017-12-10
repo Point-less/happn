@@ -11,6 +11,7 @@ import logging
 import json
 import urllib2
 from decouple import config
+import random
 
 #Phone specific IDs for generating oauth tokens
 CLIENT_ID = config('CLIENT_ID')
@@ -129,13 +130,13 @@ class User:
             'Content-Type'  : 'application/json'
             })
 
-        url = 'https://api.happn.fr/api/users/' + self.id + '/position/'
+        url = 'https://api.happn.fr/api/users/' + self.id + '/devices/'+config('DEVICE_ID')
         payload = {
-            "alt"       : 0.0,
+            "alt"       : 20 + random.uniform(-10,10),
             "latitude"  : round(latitude,7),
-            "longitude" : round(longitude,7)
+            "longitude" : round(longitude,7),
         }
-        r = requests.post(url,headers=h,data=json.dumps(payload))
+        r = requests.put(url,headers=h,data=json.dumps(payload))
 
         # Check status of Position Update
         if r.status_code == 200:    #OK HTTP status
@@ -154,7 +155,6 @@ class User:
             # If unable to change location raise an exception
             raise HTTP_MethodError(httpErrors[r.status_code])
 
-
     def set_device(self):
         """ Set device, necessary for updating position
             :TODO Add params for settings
@@ -164,7 +164,7 @@ class User:
         h=headers
         h.update({
           'Authorization'   : 'OAuth="'+ self.oauth + '"',
-          'Content-Length'  :  342, #@TODO figure out length calculation
+          'Content-Length'  :  '342', #@TODO figure out length calculation
           'Content-Type'    : 'application/json'})
 
         # Device specific payload, specific to my phone. @TODO offload to settings file?
@@ -196,7 +196,7 @@ class User:
         h=headers
         h.update({
           'Authorization'   : 'OAuth="'+ self.oauth + '"',
-          'Content-Length'  :  1089, #@TODO figure out length calculation
+          'Content-Length'  :  '1089', #@TODO figure out length calculation
           'Content-Type'    : 'application/json'})
 
         # Happn preferences
@@ -211,7 +211,6 @@ class User:
         else:
             # Unable to fetch distance
             raise HTTP_MethodError(httpErrors[r.status_code])
-
 
     def get_distance(self, userID):
         """ Fetches the distance from another user
@@ -238,7 +237,6 @@ class User:
             logging.info('Sybil %d m from target',self.distance)
         else:
             raise HTTP_MethodError(httpErrors[r.status_code])
-
 
     def get_oauth(self):
         """ Gets the OAuth tokens using Happn's API """
@@ -273,7 +271,6 @@ class User:
             logging.warning('Server denied request for OAuth token. Status: %d', r.status_code)
             raise HTTP_MethodError(httpErrors[r.status_code])
 
-
     #@TODO Update with more query fields (last name, birthday, etc)
     def get_user_info(self, userID):
         """ Fetches userInfo
@@ -306,8 +303,7 @@ class User:
             return json.loads(json.dumps(r.json()['data'], sort_keys=True, indent=4, separators=(',', ': ')))
         else:
             raise HTTP_MethodError(httpErrors[r.status_code])
-    
-            
+
     def get_recommendations(self, limit=16, offset=0):
         """ Get recs from Happn server
             :param limit Number of reccomendations to recieve
@@ -336,7 +332,7 @@ class User:
             return json.loads(json.dumps(r.json()['data'], sort_keys=True, indent=4, separators=(',', ': ')))
         else:
             raise HTTP_MethodError(httpErrors[r.status_code])
-            
+
     def get_declined(self, limit=128, offset=0):
         """ Get declined people from Happn server
             :param limit Number of people to recieve
@@ -365,7 +361,7 @@ class User:
             return json.loads(json.dumps(r.json()['data'], sort_keys=True, indent=4, separators=(',', ': ')))
         else:
             raise HTTP_MethodError(httpErrors[r.status_code])
-    
+
     def set_matching_age_min(self, age):
         """ Set matching min. age
             :mininum age to like
@@ -392,8 +388,7 @@ class User:
         else:
             # Unable to fetch distance
             raise HTTP_MethodError(httpErrors[r.status_code])
-            
-            
+
     def set_matching_age_max(self, age):
         """ Set matching max. age
             :maximum age to like
@@ -420,7 +415,7 @@ class User:
         else:
             # Unable to fetch distance
             raise HTTP_MethodError(httpErrors[r.status_code])
-    
+
     def update_activity(self):
         """ Updates User activity """
 
@@ -472,7 +467,7 @@ class User:
         else:
             # Unable to fetch distance
             raise HTTP_MethodError(httpErrors[r.status_code])
-    
+
     def unreject_user(self, user_id):
         """ Un-decline user
             :user_id id of the user to unreject
@@ -496,11 +491,11 @@ class User:
 
         if r.status_code == 200: #200 = 'OK'
             logging.info('Un-declined User '+str(user_id))
-			
+
         else:
             # Unable to fetch distance
             raise HTTP_MethodError(httpErrors[r.status_code])
-    
+
     def decline_user(self, user_id):
         """ Decline user
             :user_id id of the user to decline
@@ -527,7 +522,6 @@ class User:
         else:
             # Unable to fetch distance
             raise HTTP_MethodError(httpErrors[r.status_code])
-
 
 class HTTP_MethodError(Exception):
     def __init__(self, value):
