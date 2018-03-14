@@ -125,10 +125,9 @@ class User:
         # Create & Send the HTTP Post to Happn server
         h=headers
         h.update({
-            'Authorization' : 'OAuth="'+ self.oauth + '"',
-            'Content-Length':  '53', #@TODO Figure out length calculation
-            'Content-Type'  : 'application/json'
-            })
+          'Authorization'   : 'OAuth="'+ self.oauth + '"',
+          'Content-Length'  :  '342', #@TODO figure out length calculation
+          'Content-Type'    : 'application/json'})
 
         url = 'https://api.happn.fr/api/users/' + self.id + '/devices/'+config('DEVICE_ID')
         payload = {
@@ -153,6 +152,35 @@ class User:
                                 will revert to server known location""", httpErrors[r.status_code])
 
             # If unable to change location raise an exception
+            raise HTTP_MethodError(httpErrors[r.status_code])
+
+    def get_devices(self):
+        """ Set device, necessary for updating position
+            :TODO Add params for settings
+        """
+
+        # Create and send HTTP PUT to Happn server
+        h=headers
+        h.update({
+            'http.useragent' : 'Happn/1.0 AndroidSDK/0',
+            'Authorization'  : 'OAuth="' + self.oauth+'"',
+            'Content-Type'   : 'application/json',
+            'User-Agent'     : 'Happn/19.1.0 AndroidSDK/19',
+            'Host'           : 'api.happn.fr',
+            'Connection'     : 'Keep-Alive',
+            'Accept-Encoding': 'gzip, deflate'
+        })
+        url = 'https://api.happn.fr/api/users/' + self.id + '/devices/'
+        try:
+            r = requests.get(url,headers=h)
+        except Exception as e:
+            raise HTTP_MethodError('Error Getting Device: {}'.format(e))
+
+        if r.status_code == 200: #200 = 'OK'
+            return r.json()
+        else:
+            # Device set denied by server
+            logging.warning('Server denied request for device get: %d', r.status_code)
             raise HTTP_MethodError(httpErrors[r.status_code])
 
     def set_device(self):
@@ -181,7 +209,7 @@ class User:
 
         url = 'https://api.happn.fr/api/users/' + self.id + '/devices/'+ config('DEVICE_ID')
         try:
-            r = requests.put(url,headers=h,data=json.dumps(payload))
+            r = requests.post(url,headers=h,data=json.dumps(payload))
         except Exception as e:
             raise HTTP_MethodError('Error Setting Device: {}'.format(e))
 
@@ -190,6 +218,7 @@ class User:
         else:
             # Device set denied by server
             logging.warning('Server denied request for device set change: %d', r.status_code)
+
             raise HTTP_MethodError(httpErrors[r.status_code])
 
     def set_settings(self, settings):
@@ -209,6 +238,7 @@ class User:
         if r.status_code == 200: #200 = 'OK'
             logging.debug('Updated Settings')
         else:
+
             # Unable to fetch distance
             raise HTTP_MethodError(httpErrors[r.status_code])
 
