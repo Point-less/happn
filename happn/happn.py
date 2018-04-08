@@ -125,9 +125,10 @@ class User:
         # Create & Send the HTTP Post to Happn server
         h=headers
         h.update({
-          'Authorization'   : 'OAuth="'+ self.oauth + '"',
-          'Content-Length'  :  '342', #@TODO figure out length calculation
-          'Content-Type'    : 'application/json'})
+            'Authorization' : 'OAuth="'+ self.oauth + '"',
+            'Content-Length': '342', #@TODO figure out length calculation
+            'Content-Type'  : 'application/json'
+            })
 
         url = 'https://api.happn.fr/api/users/' + self.id + '/devices/'+config('DEVICE_ID')
         payload = {
@@ -155,7 +156,7 @@ class User:
             raise HTTP_MethodError(httpErrors[r.status_code])
 
     def get_devices(self):
-        """ Set device, necessary for updating position
+        """ Get device, necessary for updating position
             :TODO Add params for settings
         """
 
@@ -218,7 +219,6 @@ class User:
         else:
             # Device set denied by server
             logging.warning('Server denied request for device set change: %d', r.status_code)
-
             raise HTTP_MethodError(httpErrors[r.status_code])
 
     def set_settings(self, settings):
@@ -238,7 +238,6 @@ class User:
         if r.status_code == 200: #200 = 'OK'
             logging.debug('Updated Settings')
         else:
-
             # Unable to fetch distance
             raise HTTP_MethodError(httpErrors[r.status_code])
 
@@ -267,7 +266,7 @@ class User:
             logging.info('Sybil %d m from target',self.distance)
         else:
             raise HTTP_MethodError(httpErrors[r.status_code])
-    
+
     def get_targetinfo(self, userID):
         """ Fetches userInfo for target userid
             :param userID User ID of target user.
@@ -287,7 +286,7 @@ class User:
         }
 
         query = '?fields=spotify%5Ftracks%2Cmodification%5Fdate%2Cmy%5Frelations%2Csocial%5Fsynchronization%2Efields%28facebook%2Efields%28id%29%2Cinstagram%2Efields%28pictures%2Efields%28id%29%2Cusername%29%29%2Cschool%2Cage%2Cclickable%5Fprofile%5Flink%2Cis%5Finvited%2Ctype%2Cgender%2Cis%5Fcharmed%2Cpicture%2Efields%28id%2Curl%2Cis%5Fdefault%29%2Eheight%2892%29%2Emode%280%29%2Ewidth%2892%29%2Clast%5Fmeet%5Fposition%2Cprofiles%2Efields%28id%2Curl%2Cis%5Fdefault%29%2Eheight%281136%29%2Emode%281%29%2Ewidth%28640%29%2Chas%5Fcharmed%5Fme%2Cjob%2Cfirst%5Fname%2Clast%5Finvite%5Freceived%2Cdistance%2Cavailability%2Cabout%2Cid%2Cworkplace%2Cis%5Faccepted'
-        
+
         url = 'https://api.happn.fr/api/users/' + userID + query
         try:
             r = requests.get(url, headers=h)
@@ -299,17 +298,17 @@ class User:
             # Load response into a python dictionary, syntax seems redundant
             logging.debug("Retrieved info of user {}".format(userID))
             return json.loads(json.dumps(r.json()['data'], sort_keys=True, indent=4, separators=(',', ': ')))
-            
+
         else:
             raise HTTP_MethodError(httpErrors[r.status_code])
-    
+
     def get_conversations(self, offset=0,limit=64):
         """ Get conversations with userID from Happn server
             :param userID User ID of target user.
             :param offset Offset of conversations to recieve
             :param limit Number of conversations to recieve
         """
-        
+
         # Create and send HTTP Get to Happn server
         h={ #For some reason header update doesnt work
             'http.useragent' : 'Happn/1.0 AndroidSDK/0',
@@ -322,31 +321,31 @@ class User:
         }
         query ='fields=creation%5Fdate%2Cparticipants%2Efields%28user%2Efields%28picture%2Efields%28id%2Curl%2Cis%5Fdefault%29%2Eheight%28120%29%2Emode%280%29%2Ewidth%28120%29%2Cage%2Cclickable%5Fmessage%5Flink%2Cid%2Cfirst%5Fname%2Cis%5Fmoderator%29%29%2Cmodification%5Fdate%2Cid%2Cmessages%2Efields%28sender%2Efields%28id%2Cfirst%5Fname%29%2Ccreation%5Fdate%2Cmessage%2Cid%29%2Eoffset%280%29%2Elimit%283%29%2Cis%5Fread&offset=' + str(offset) + '&limit=' + str(limit)
         #'{"fields":"creation_date,participants.fields(user.fields(picture.fields(id,url,is_default).height(120).mode(0).width(120),age,clickable_message_link,id,first_name,is_moderator)),modification_date,id,messages.fields(sender.fields(id,first_name),creation_date,message,id).offset(0).limit(3),is_read", "offset": '+str(offset)+'}'
-        
+
         url = 'https://api.happn.fr/api/users/' + str(self.id) + '/conversations?' + urllib2.quote(query)
-        
+
         logging.debug("Using url = {}".format(url))
         logging.debug("SenderID: {}".format(self.id))
-        
+
         try:
             r = requests.get(url, headers=h)
         except Exception as e:
             raise HTTP_MethodError('Error Connecting to Happn Server: {}'.format(e))
-            
+
         if r.status_code == 200: #200 = 'OK'
             logging.debug("Return code: {}".format(r.status_code))
             return json.loads(json.dumps(r.json()['data'], sort_keys=True, indent=4, separators=(',', ': ')))
         else:
             logging.warn("Error: {}".format(r.status_code))
             raise HTTP_MethodError(httpErrors[r.status_code])
-            
+
     def get_messages(self, conversationID, offset=0,limit=64):
         """ Get conversations with userID from Happn server
             :param conversationID ID of conversation between user1 and user2.
             :param offset Offset of messages to recieve
             :param limit Number of messages to recieve
         """
-        
+
         # Create and send HTTP Get to Happn server
         h={ #For some reason header update doesnt work
             'http.useragent' : 'Happn/1.0 AndroidSDK/0',
@@ -358,26 +357,26 @@ class User:
             'Accept-Encoding': 'gzip, deflate'
         }
         query = '{fields":"sender.fields(picture.fields(id,url,is_default).height(70).mode(0).width(70),clickable_message_link,id,first_name,is_moderator),creation_date,message,id"}'
-        
+
         #fields=sender%2Efields%28picture%2Efields%28id%2Curl%2Cis%5Fdefault%29%2Eheight%2870%29%2Emode%280%29%2Ewidth%2870%29%2Cclickable%5Fmessage%5Flink%2Cid%2Cfirst%5Fname%2Cis%5Fmoderator%29%2Ccreation%5Fdate%2Cmessage%2Cid&offset=0&limit=27
-        
+
         url = 'https://api.happn.fr/api/conversations/' + str(conversationID) + '/messages?' + urllib2.quote(query) + "%offset="+str(offset)+"&limit="+str(limit)
         #
         logging.debug("Using url = {}".format(url))
         logging.debug("convoID: {}".format(conversationID))
-        
+
         try:
             r = requests.get(url, headers=h)
         except Exception as e:
             raise HTTP_MethodError('Error Connecting to Happn Server: {}'.format(e))
-            
+
         if r.status_code == 200: #200 = 'OK'
             logging.debug("Return code: {}".format(r.status_code))
             return json.loads(json.dumps(r.json()['data'], sort_keys=True, indent=4, separators=(',', ': ')))
         else:
             logging.warn("Error: {}".format(r.status_code))
             raise HTTP_MethodError(httpErrors[r.status_code])
-    
+
     def get_oauth(self):
         """ Gets the OAuth tokens using Happn's API """
 
